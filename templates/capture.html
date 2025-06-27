@@ -1,0 +1,319 @@
+{% extends "base.html" %}
+
+{% block title %}Capture Étudiants - Smart Classroom{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/capture.css') }}">
+{% endblock %}
+
+{% block content %}
+<!-- En-tête de la page de capture -->
+<div class="capture-header">
+    <h1>📸 Capture d'Étudiants</h1>
+    <p>Capturez les visages des étudiants pour alimenter la base de reconnaissance faciale</p>
+</div>
+
+<!-- Interface principale de capture -->
+<div class="capture-interface">
+    <div class="grid grid-2">
+        <!-- Flux vidéo et contrôles -->
+        <div class="card">
+            <h2>📹 Aperçu Caméra</h2>
+            <div class="video-container">
+                <img id="captureVideoStream" 
+                     src="/api/camera/stream" 
+                     alt="Flux vidéo pour capture"
+                     style="width: 100%; height: 100%; object-fit: cover; border-radius: 10px; display: none;"
+                     onload="handleCaptureVideoLoad(this)"
+                     onerror="handleCaptureVideoError(this)">
+                <div id="captureVideoPlaceholder" class="video-placeholder">
+                    🎥 Flux caméra pour capture<br>
+                    <small>Positionnez l'étudiant face à la caméra</small>
+                </div>
+                
+                <!-- Overlay pour guide de positionnement -->
+                <div class="face-guide-overlay" id="faceGuide">
+                    <div class="face-guide-box">
+                        <div class="guide-text">Placez le visage ici</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Contrôles caméra -->
+            <div class="camera-controls">
+                <button class="btn btn-success" onclick="toggleCaptureCamera()" id="captureCameraBtn">
+                    Démarrer Caméra
+                </button>
+                <button class="btn" onclick="refreshCaptureStream()">🔄 Actualiser</button>
+                <button class="btn btn-warning" onclick="calibrateCamera()">⚙️ Calibrer</button>
+            </div>
+            
+            <!-- Informations caméra -->
+            <div class="camera-info">
+                <div class="info-item">
+                    <span class="info-label">Statut:</span>
+                    <span class="info-value" id="cameraStatusText">Inactif</span>
+                    <div class="status-indicator" id="cameraStatusIndicator"></div>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Visages détectés:</span>
+                    <span class="info-value" id="facesDetected">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interface de capture -->
+        <div class="card">
+            <h2>👤 Configuration Capture</h2>
+            
+            <!-- Formulaire de configuration -->
+            <div id="captureSetup" class="capture-setup">
+                <div class="form-group">
+                    <label for="studentName">Nom de l'étudiant</label>
+                    <input type="text" 
+                           id="studentName" 
+                           placeholder="Entrez le nom (ex: John_Doe)"
+                           maxlength="50">
+                    <small class="form-help">Utilisez des underscores au lieu d'espaces</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="imageCount">Nombre d'images à capturer</label>
+                    <input type="number" 
+                           id="imageCount" 
+                           value="20" 
+                           min="10" 
+                           max="50">
+                    <small class="form-help">Recommandé: 20-30 images pour une bonne reconnaissance</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="captureMode">Mode de capture</label>
+                    <select id="captureMode">
+                        <option value="manual">Manuel (recommandé)</option>
+                        <option value="auto">Automatique</option>
+                    </select>
+                </div>
+                
+                <button class="btn btn-success btn-large" onclick="startWebCapture()">
+                    🎯 Démarrer Capture
+                </button>
+            </div>
+
+            <!-- Interface de capture active -->
+            <div id="captureInterface" class="capture-active" style="display: none;">
+                <div class="capture-status">
+                    <h3 id="captureTitle">Capture en cours...</h3>
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="captureProgress" style="width: 0%"></div>
+                        </div>
+                        <div class="progress-text">
+                            <span id="captureCount">0</span>/<span id="captureTotal">20</span> images
+                        </div>
+                    </div>
+                    <p class="capture-message" id="captureMessage">Préparation...</p>
+                </div>
+                
+                <div class="capture-controls">
+                    <button class="btn btn-success btn-large" onclick="triggerCapture()" id="captureBtn">
+                        📸 Capturer Image
+                    </button>
+                    <button class="btn btn-danger" onclick="stopWebCapture()">
+                        🛑 Arrêter
+                    </button>
+                    <button class="btn btn-secondary" onclick="pauseCapture()" id="pauseBtn">
+                        ⏸️ Pause
+                    </button>
+                </div>
+                
+                <!-- Conseils en temps réel -->
+                <div class="capture-tips" id="captureTips">
+                    <h4>💡 Conseils pour une bonne capture:</h4>
+                    <ul id="tipsList">
+                        <li>📷 Regardez directement la caméra</li>
+                        <li>💡 Assurez-vous d'avoir un bon éclairage</li>
+                        <li>😊 Variez légèrement les expressions</li>
+                        <li>📐 Centrez votre visage dans l'image</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Section gestion des étudiants -->
+<div class="students-management">
+    <div class="card">
+        <h2>👥 Gestion des Étudiants</h2>
+        
+        <div class="management-controls">
+            <button class="btn" onclick="refreshStudentsList()">🔄 Actualiser</button>
+            <button class="btn btn-warning" onclick="exportStudentsData()">📤 Exporter</button>
+            <button class="btn btn-secondary" onclick="showStudentsStats()">📊 Statistiques</button>
+        </div>
+        
+        <!-- Liste des étudiants -->
+        <div class="students-list" id="studentsList">
+            <div class="loading-message">Chargement de la liste des étudiants...</div>
+        </div>
+        
+        <!-- Pagination -->
+        <div class="pagination" id="studentsPagination" style="display: none;">
+            <button class="btn btn-sm" onclick="previousPage()">« Précédent</button>
+            <span class="page-info">Page <span id="currentPage">1</span> sur <span id="totalPages">1</span></span>
+            <button class="btn btn-sm" onclick="nextPage()">Suivant »</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmation de suppression -->
+<div id="deleteModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('deleteModal')">&times;</span>
+        <h2>⚠️ Confirmer la suppression</h2>
+        <p>Êtes-vous sûr de vouloir supprimer l'étudiant <strong id="deleteStudentName"></strong> ?</p>
+        <p class="warning-text">Cette action supprimera toutes les images et ne peut pas être annulée.</p>
+        <div class="modal-actions">
+            <button class="btn btn-danger" onclick="confirmDelete()">Supprimer</button>
+            <button class="btn btn-secondary" onclick="closeModal('deleteModal')">Annuler</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal statistiques -->
+<div id="statsModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('statsModal')">&times;</span>
+        <h2>📊 Statistiques de la Base</h2>
+        <div id="statsContent">
+            <div class="loading-message">Chargement des statistiques...</div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script src="{{ url_for('static', filename='js/capture.js') }}"></script>
+<script>
+// Variables globales pour la capture
+let captureActive = false;
+let captureData = {
+    studentName: '',
+    totalImages: 20,
+    capturedImages: 0,
+    mode: 'manual'
+};
+
+// Initialisation de la page
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('📸 Initialisation page de capture');
+    
+    // Initialiser l'interface de capture
+    initializeCaptureInterface();
+    
+    // Charger la liste des étudiants
+    loadStudentsList();
+    
+    // Vérifier le statut de la caméra
+    checkCameraStatusForCapture();
+    
+    // Configurer les validations de formulaire
+    setupFormValidation();
+});
+
+function initializeCaptureInterface() {
+    // Configuration des événements du formulaire
+    const studentNameInput = document.getElementById('studentName');
+    const imageCountInput = document.getElementById('imageCount');
+    
+    studentNameInput.addEventListener('input', validateStudentInput);
+    imageCountInput.addEventListener('change', validateImageCount);
+    
+    // Écouter les changements de mode
+    document.getElementById('captureMode').addEventListener('change', function() {
+        captureData.mode = this.value;
+        updateCaptureInterface();
+    });
+}
+
+function validateStudentInput() {
+    const input = document.getElementById('studentName');
+    const value = input.value.trim();
+    
+    // Nettoyer automatiquement
+    const sanitized = Utils.sanitizeStudentName(value);
+    if (sanitized !== value) {
+        input.value = sanitized;
+    }
+    
+    // Valider
+    const validation = Utils.validateStudentName(sanitized);
+    
+    // Afficher le feedback
+    input.classList.toggle('invalid', !validation.valid);
+    
+    if (!validation.valid && value.length > 0) {
+        showInputError(input, validation.message);
+    } else {
+        clearInputError(input);
+    }
+}
+
+function validateImageCount() {
+    const input = document.getElementById('imageCount');
+    const value = parseInt(input.value);
+    
+    if (value < 10) {
+        input.value = 10;
+        notifications.warning('Minimum 10 images requis');
+    } else if (value > 50) {
+        input.value = 50;
+        notifications.warning('Maximum 50 images autorisé');
+    }
+}
+
+function setupFormValidation() {
+    // Validation en temps réel
+    const form = document.querySelector('.capture-setup');
+    const inputs = form.querySelectorAll('input, select');
+    
+    inputs.forEach(input => {
+        input.addEventListener('blur', validateField);
+    });
+}
+
+function validateField(event) {
+    const field = event.target;
+    
+    switch(field.id) {
+        case 'studentName':
+            validateStudentInput();
+            break;
+        case 'imageCount':
+            validateImageCount();
+            break;
+    }
+}
+
+function showInputError(input, message) {
+    let errorElement = input.parentNode.querySelector('.error-message');
+    if (!errorElement) {
+        errorElement = document.createElement('small');
+        errorElement.className = 'error-message';
+        input.parentNode.appendChild(errorElement);
+    }
+    errorElement.textContent = message;
+    errorElement.style.color = '#dc3545';
+}
+
+function clearInputError(input) {
+    const errorElement = input.parentNode.querySelector('.error-message');
+    if (errorElement) {
+        errorElement.remove();
+    }
+}
+
+// Sera complété dans capture.js
+</script>
+{% endblock %}

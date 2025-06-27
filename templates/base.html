@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Smart Classroom{% endblock %}</title>
+    
+    <!-- CSS Principal -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    
+    <!-- CSS spécifiques aux pages -->
+    {% block css %}{% endblock %}
+    
+    <!-- Meta tags -->
+    <meta name="description" content="Système de gestion intelligente de classe avec reconnaissance faciale">
+    <meta name="author" content="Smart Classroom Team">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <h1>🎓 Smart Classroom Platform</h1>
+            <p>Système de gestion intelligente de classe avec reconnaissance faciale et suivi d'attention</p>
+            
+            <!-- Navigation -->
+            <nav class="navigation">
+                <a href="{{ url_for('index') }}" class="nav-link {% if request.endpoint == 'index' %}active{% endif %}">
+                    🏠 Accueil
+                </a>
+                <a href="{{ url_for('capture_page') }}" class="nav-link {% if request.endpoint == 'capture_page' %}active{% endif %}">
+                    📸 Capture
+                </a>
+                <a href="{{ url_for('dashboard_page') }}" class="nav-link {% if request.endpoint == 'dashboard_page' %}active{% endif %}">
+                    📊 Dashboard
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Contenu principal -->
+    <main class="main-content">
+        <div class="container">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Smart Classroom Platform - Système intelligent de gestion de classe</p>
+        </div>
+    </footer>
+
+    <!-- Notifications -->
+    <div class="notification" id="notification"></div>
+
+    <!-- JavaScript principal -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    
+    <!-- JavaScript spécifiques aux pages -->
+    {% block javascript %}{% endblock %}
+</body>
+</html>

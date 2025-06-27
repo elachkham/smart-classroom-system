@@ -1,0 +1,289 @@
+{% extends "base.html" %}
+
+{% block title %}Accueil - Smart Classroom{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+
+{% block content %}
+<!-- Vue d'ensemble du système -->
+<div class="system-overview">
+    <div class="grid grid-4">
+        <div class="stat-card">
+            <div class="stat-icon">👥</div>
+            <div class="stat-value" id="studentsPresent">0</div>
+            <div class="stat-label">Étudiants Présents</div>
+            <div class="status-indicator" id="recognition-status"></div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">👁️</div>
+            <div class="stat-value" id="attentionRate">0%</div>
+            <div class="stat-label">Taux d'Attention</div>
+            <div class="status-indicator" id="attention-status"></div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">📊</div>
+            <div class="stat-value" id="totalStudents">0</div>
+            <div class="stat-label">Total Étudiants</div>
+            <div class="status-indicator" id="database-status"></div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">📹</div>
+            <div class="stat-value">
+                <span class="status-text" id="camera-status-text">Inactif</span>
+            </div>
+            <div class="stat-label">Caméra</div>
+            <div class="status-indicator" id="camera-status"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Actions rapides -->
+<div class="quick-actions">
+    <h2>🚀 Actions Rapides</h2>
+    <div class="grid grid-3">
+        <div class="action-card">
+            <h3>📸 Capture Rapide</h3>
+            <p>Capturer un nouvel étudiant en quelques clics</p>
+            <a href="{{ url_for('capture_page') }}" class="btn btn-success">
+                Nouvelle Capture
+            </a>
+        </div>
+        
+        <div class="action-card">
+            <h3>📊 Monitoring</h3>
+            <p>Surveiller le système en temps réel</p>
+            <a href="{{ url_for('dashboard_page') }}" class="btn">
+                Voir Dashboard
+            </a>
+        </div>
+        
+        <div class="action-card">
+            <h3>⚙️ Contrôles</h3>
+            <p>Gérer la caméra et les composants</p>
+            <button class="btn" onclick="toggleSystemComponent()">
+                Contrôler Système
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Flux vidéo en direct -->
+<div class="video-section">
+    <div class="grid grid-2">
+        <div class="card">
+            <h2>📹 Flux Vidéo en Direct</h2>
+            <div class="video-container">
+                <img id="videoStream" 
+                     src="/api/camera/stream" 
+                     alt="Flux vidéo Smart Classroom"
+                     style="width: 100%; height: 100%; object-fit: cover; border-radius: 10px; display: none;"
+                     onload="handleVideoLoad(this)"
+                     onerror="handleVideoError(this)">
+                <div id="videoPlaceholder" class="video-placeholder">
+                    🎥 Connexion au flux vidéo...<br>
+                    <small>Vérifiez que la caméra est active</small>
+                </div>
+            </div>
+            <div class="video-controls">
+                <button class="btn btn-success" onclick="toggleCamera()" id="cameraBtn">
+                    Démarrer Caméra
+                </button>
+                <button class="btn" onclick="takeSnapshot()">📸 Snapshot</button>
+                <button class="btn" onclick="refreshStream()">🔄 Actualiser</button>
+            </div>
+        </div>
+        
+        <!-- Logs récents -->
+        <div class="card">
+            <h2>📝 Activité Récente</h2>
+            <div class="recent-logs" id="recentLogs">
+                <div class="log-entry">
+                    <span class="log-time">Chargement...</span>
+                    <span class="log-message">Initialisation du système</span>
+                </div>
+            </div>
+            <div class="text-center mt-2">
+                <a href="{{ url_for('dashboard_page') }}" class="btn btn-secondary">
+                    Voir Tous les Logs
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- État des composants -->
+<div class="components-status">
+    <h2>🔧 État des Composants</h2>
+    <div class="grid grid-4">
+        <div class="component-card" id="camera-component">
+            <div class="component-icon">📹</div>
+            <div class="component-name">Caméra</div>
+            <div class="component-status">
+                <div class="status-indicator" id="camera-status-comp"></div>
+                <span class="status-text">Inactif</span>
+            </div>
+            <button class="btn btn-sm" onclick="toggleCamera()">Toggle</button>
+        </div>
+        
+        <div class="component-card" id="recognition-component">
+            <div class="component-icon">🤖</div>
+            <div class="component-name">Reconnaissance</div>
+            <div class="component-status">
+                <div class="status-indicator" id="recognition-status-comp"></div>
+                <span class="status-text">Inactif</span>
+            </div>
+            <button class="btn btn-sm" onclick="toggleRecognition()">Toggle</button>
+        </div>
+        
+        <div class="component-card" id="attention-component">
+            <div class="component-icon">👁️</div>
+            <div class="component-name">Suivi Attention</div>
+            <div class="component-status">
+                <div class="status-indicator" id="attention-status-comp"></div>
+                <span class="status-text">Inactif</span>
+            </div>
+            <button class="btn btn-sm" onclick="toggleAttention()">Toggle</button>
+        </div>
+        
+        <div class="component-card" id="door-component">
+            <div class="component-icon">🚪</div>
+            <div class="component-name">Contrôle Porte</div>
+            <div class="component-status">
+                <div class="status-indicator" id="door-status-comp"></div>
+                <span class="status-text">Déconnecté</span>
+            </div>
+            <button class="btn btn-sm" onclick="testDoor()">Test</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script src="{{ url_for('static', filename='js/camera.js') }}"></script>
+<script>
+// Code spécifique à la page d'accueil
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialiser les composants de la page d'accueil
+    initializeHomePage();
+    
+    // Démarrer la mise à jour des statistiques
+    startStatsUpdater();
+    
+    // Charger l'activité récente
+    loadRecentActivity();
+    
+    // Vérifier le statut initial de la caméra
+    checkInitialCameraStatus();
+});
+
+function initializeHomePage() {
+    console.log('🏠 Initialisation page d\'accueil');
+    
+    // Charger les statistiques initiales
+    updateStats();
+    
+    // Configuration du stream vidéo
+    setupVideoStream();
+}
+
+function startStatsUpdater() {
+    // Mettre à jour les stats toutes les 5 secondes
+    setInterval(updateStats, 5000);
+}
+
+async function updateStats() {
+    try {
+        const response = await api.get('/api/students/stats');
+        if (response.success && response.stats) {
+            document.getElementById('totalStudents').textContent = response.stats.total_students || 0;
+        }
+        
+        // Simuler d'autres statistiques
+        document.getElementById('studentsPresent').textContent = Math.floor(Math.random() * 5);
+        document.getElementById('attentionRate').textContent = (Math.floor(Math.random() * 30) + 70) + '%';
+        
+    } catch (error) {
+        console.error('Erreur mise à jour stats:', error);
+    }
+}
+
+async function loadRecentActivity() {
+    try {
+        const logs = await api.get('/api/logs/attendance?limit=5');
+        const container = document.getElementById('recentLogs');
+        
+        if (logs.logs && logs.logs.length > 0) {
+            container.innerHTML = logs.logs.map(log => `
+                <div class="log-entry">
+                    <span class="log-time">${Utils.formatDate(log.timestamp)}</span>
+                    <span class="log-message">${log.student_name || 'Système'} - ${log.course || 'Activité'}</span>
+                </div>
+            `).join('');
+        } else {
+            container.innerHTML = '<div class="log-entry">Aucune activité récente</div>';
+        }
+    } catch (error) {
+        console.error('Erreur chargement logs:', error);
+    }
+}
+
+function checkInitialCameraStatus() {
+    // Vérifier le statut de la caméra au chargement
+    setTimeout(async () => {
+        try {
+            const status = await api.get('/api/camera/status');
+            if (status.success && status.active) {
+                startVideoStream();
+            }
+        } catch (error) {
+            console.log('Caméra non disponible au démarrage');
+        }
+    }, 1000);
+}
+
+// Fonctions de contrôle des composants
+async function toggleSystemComponent() {
+    // Ouvrir un modal de contrôle ou rediriger vers les paramètres
+    notifications.info('Fonction de contrôle système - À implémenter');
+}
+
+async function toggleRecognition() {
+    try {
+        // Alterner entre start et stop selon l'état actuel
+        const endpoint = systemManager.status.recognition ? '/api/recognition/stop' : '/api/recognition/start';
+        const response = await api.post(endpoint);
+        
+        if (response.success) {
+            notifications.success(response.message);
+            systemManager.updateSystemStatus();
+        } else {
+            notifications.error(response.message);
+        }
+    } catch (error) {
+        notifications.error('Erreur contrôle reconnaissance');
+    }
+}
+
+async function toggleAttention() {
+    notifications.info('Suivi d\'attention - Contrôle à implémenter');
+}
+
+async function testDoor() {
+    try {
+        const response = await api.post('/api/door/test');
+        if (response.success) {
+            notifications.success(response.message);
+        } else {
+            notifications.error(response.message);
+        }
+    } catch (error) {
+        notifications.error('Erreur test porte');
+    }
+}
+</script>
+{% endblock %}

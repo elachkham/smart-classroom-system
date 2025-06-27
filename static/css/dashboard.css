@@ -1,0 +1,577 @@
+/* ================================
+   SMART CLASSROOM - CSS DASHBOARD
+   ================================ */
+
+/* En-tête du dashboard */
+.dashboard-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.dashboard-header h1 {
+    color: white;
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.dashboard-header p {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+}
+
+.quick-controls {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+/* ================================
+   MÉTRIQUES PRINCIPALES
+   ================================ */
+
+.metrics-overview {
+    margin-bottom: 3rem;
+}
+
+.metric-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    padding: 2rem;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.metric-card:hover {
+    transform: translateY(-5px);
+}
+
+.metric-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+}
+
+.metric-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    opacity: 0.8;
+}
+
+.metric-value {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.metric-label {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.metric-trend {
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    background: #e8f5e8;
+    color: #28a745;
+    display: inline-block;
+}
+
+.metric-trend.negative {
+    background: #ffeaea;
+    color: #dc3545;
+}
+
+/* ================================
+   GRAPHIQUES
+   ================================ */
+
+.charts-section {
+    margin-bottom: 3rem;
+}
+
+.chart-container {
+    position: relative;
+    height: 300px;
+    margin-bottom: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.chart-controls {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.chart-controls .btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+    min-width: auto;
+}
+
+.chart-controls .btn.active {
+    background: #667eea;
+    color: white;
+}
+
+/* Légende des émotions */
+.emotion-legend {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.emotion-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.emotion-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+/* ================================
+   LOGS EN TEMPS RÉEL
+   ================================ */
+
+.logs-section {
+    margin-bottom: 3rem;
+}
+
+.log-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.tab-btn {
+    background: transparent;
+    border: none;
+    padding: 0.75rem 1rem;
+    border-radius: 5px 5px 0 0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #666;
+    font-weight: 500;
+    position: relative;
+}
+
+.tab-btn:hover {
+    background: rgba(102, 126, 234, 0.1);
+    color: #667eea;
+}
+
+.tab-btn.active {
+    background: #667eea;
+    color: white;
+}
+
+.tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #667eea;
+}
+
+.log-controls {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.log-filter {
+    margin-left: auto;
+}
+
+.log-filter input {
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    min-width: 200px;
+}
+
+.log-content {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    background: #f8f9fa;
+}
+
+.log-entry {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #e9ecef;
+    font-family: monospace;
+    font-size: 0.9rem;
+    transition: background-color 0.2s ease;
+}
+
+.log-entry:hover {
+    background: rgba(102, 126, 234, 0.05);
+}
+
+.log-entry:last-child {
+    border-bottom: none;
+}
+
+.log-time {
+    color: #666;
+    margin-right: 1rem;
+    min-width: 120px;
+    font-size: 0.8rem;
+}
+
+.log-icon {
+    margin-right: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.log-message {
+    flex: 1;
+    color: #333;
+}
+
+.log-details {
+    color: #888;
+    font-size: 0.8rem;
+    margin-left: auto;
+}
+
+/* Types de logs */
+.log-entry.attendance {
+    border-left: 4px solid #28a745;
+}
+
+.log-entry.attention {
+    border-left: 4px solid #17a2b8;
+}
+
+.log-entry.emotion {
+    border-left: 4px solid #ffc107;
+}
+
+.log-entry.access {
+    border-left: 4px solid #dc3545;
+}
+
+.log-pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 0 0 8px 8px;
+}
+
+.log-count {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+/* ================================
+   ÉTAT DU SYSTÈME
+   ================================ */
+
+.system-status {
+    margin-bottom: 2rem;
+}
+
+/* Composants */
+.component-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.component-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.component-item.active {
+    border-left-color: #28a745;
+    background: #e8f5e8;
+}
+
+.component-item.inactive {
+    border-left-color: #dc3545;
+    background: #ffeaea;
+}
+
+.component-name {
+    flex: 1;
+    font-weight: 600;
+    color: #333;
+}
+
+.component-status {
+    margin-left: 0.5rem;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+/* Performance */
+.performance-metrics {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.perf-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.perf-item:last-child {
+    border-bottom: none;
+}
+
+.perf-label {
+    font-weight: 500;
+    color: #333;
+}
+
+.perf-value {
+    font-weight: 600;
+    color: #667eea;
+    font-family: monospace;
+}
+
+/* Alertes */
+.alerts-container {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-bottom: 1rem;
+}
+
+.alert-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    border-left: 4px solid;
+}
+
+.alert-item.info {
+    background: #e7f3ff;
+    border-left-color: #17a2b8;
+}
+
+.alert-item.warning {
+    background: #fff3cd;
+    border-left-color: #ffc107;
+}
+
+.alert-item.error {
+    background: #f8d7da;
+    border-left-color: #dc3545;
+}
+
+.alert-item.success {
+    background: #d4edda;
+    border-left-color: #28a745;
+}
+
+.alert-icon {
+    font-size: 1.2rem;
+    margin-top: 0.1rem;
+}
+
+.alert-message {
+    flex: 1;
+    color: #333;
+    font-weight: 500;
+}
+
+.alert-time {
+    font-size: 0.8rem;
+    color: #666;
+    white-space: nowrap;
+}
+
+.alerts-controls {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+/* ================================
+   INDICATEURS DE CHARGEMENT
+   ================================ */
+
+.loading-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    color: #666;
+}
+
+.loading-indicator::before {
+    content: '';
+    width: 20px;
+    height: 20px;
+    border: 2px solid #e9ecef;
+    border-top: 2px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-right: 0.5rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+body.loading {
+    cursor: wait;
+}
+
+body.loading * {
+    pointer-events: none;
+}
+
+/* ================================
+   RESPONSIVE DESIGN
+   ================================ */
+
+@media (max-width: 768px) {
+    .dashboard-header h1 {
+        font-size: 2rem;
+    }
+    
+    .quick-controls {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .metric-card {
+        padding: 1.5rem;
+    }
+    
+    .metric-value {
+        font-size: 2rem;
+    }
+    
+    .chart-container {
+        height: 250px;
+        padding: 0.5rem;
+    }
+    
+    .log-tabs {
+        overflow-x: auto;
+        white-space: nowrap;
+        scrollbar-width: thin;
+    }
+    
+    .log-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .log-filter {
+        margin-left: 0;
+        margin-top: 1rem;
+    }
+    
+    .log-filter input {
+        width: 100%;
+        min-width: auto;
+    }
+    
+    .log-entry {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .log-time {
+        min-width: auto;
+        margin-right: 0;
+    }
+    
+    .component-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .alert-item {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .alerts-controls {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 480px) {
+    .dashboard-header {
+        padding: 0 1rem;
+    }
+    
+    .metric-icon {
+        font-size: 2rem;
+    }
+    
+    .metric-value {
+        font-size: 1.8rem;
+    }
+    
+    .chart-container {
+        height: 200px;
+    }
+    
+    .log-content {
+        max-height: 300px;
+    }
+    
+    .emotion-legend {
+        gap: 0.5rem;
+    }
+    
+    .emotion-item {
+        font-size: 0.8rem;
+    }
+}

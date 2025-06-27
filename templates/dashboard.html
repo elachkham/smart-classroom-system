@@ -1,0 +1,330 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Smart Classroom{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+
+{% block content %}
+<!-- En-tête du dashboard -->
+<div class="dashboard-header">
+    <h1>📊 Dashboard Smart Classroom</h1>
+    <p>Monitoring en temps réel du système de gestion intelligente de classe</p>
+    
+    <!-- Contrôles rapides -->
+    <div class="quick-controls">
+        <button class="btn btn-success" onclick="refreshAllData()">🔄 Actualiser</button>
+        <button class="btn" onclick="exportDashboardData()">📤 Exporter</button>
+        <button class="btn btn-secondary" onclick="toggleAutoRefresh()">⏰ Auto-refresh</button>
+    </div>
+</div>
+
+<!-- Métriques principales -->
+<div class="metrics-overview">
+    <div class="grid grid-4">
+        <div class="metric-card" id="attendanceMetric">
+            <div class="metric-icon">👥</div>
+            <div class="metric-value" id="totalAttendance">0</div>
+            <div class="metric-label">Présences Aujourd'hui</div>
+            <div class="metric-trend" id="attendanceTrend">+0%</div>
+        </div>
+        
+        <div class="metric-card" id="attentionMetric">
+            <div class="metric-icon">👁️</div>
+            <div class="metric-value" id="avgAttention">0%</div>
+            <div class="metric-label">Attention Moyenne</div>
+            <div class="metric-trend" id="attentionTrend">+0%</div>
+        </div>
+        
+        <div class="metric-card" id="emotionMetric">
+            <div class="metric-icon">😊</div>
+            <div class="metric-value" id="positiveEmotions">0%</div>
+            <div class="metric-label">Émotions Positives</div>
+            <div class="metric-trend" id="emotionTrend">+0%</div>
+        </div>
+        
+        <div class="metric-card" id="systemMetric">
+            <div class="metric-icon">⚡</div>
+            <div class="metric-value" id="systemUptime">0h</div>
+            <div class="metric-label">Temps de Fonctionnement</div>
+            <div class="metric-trend" id="systemTrend">99%</div>
+        </div>
+    </div>
+</div>
+
+<!-- Graphiques et visualisations -->
+<div class="charts-section">
+    <div class="grid grid-2">
+        <!-- Graphique d'attention -->
+        <div class="card">
+            <h2>📈 Évolution de l'Attention</h2>
+            <div class="chart-container">
+                <canvas id="attentionChart" width="400" height="200"></canvas>
+            </div>
+            <div class="chart-controls">
+                <button class="btn btn-sm" onclick="setChartPeriod('attentionChart', '1h')">1h</button>
+                <button class="btn btn-sm active" onclick="setChartPeriod('attentionChart', '6h')">6h</button>
+                <button class="btn btn-sm" onclick="setChartPeriod('attentionChart', '24h')">24h</button>
+            </div>
+        </div>
+        
+        <!-- Graphique d'émotions -->
+        <div class="card">
+            <h2>😊 Distribution des Émotions</h2>
+            <div class="chart-container">
+                <canvas id="emotionChart" width="400" height="200"></canvas>
+            </div>
+            <div class="emotion-legend" id="emotionLegend">
+                <!-- Légende générée dynamiquement -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Logs en temps réel -->
+<div class="logs-section">
+    <div class="card">
+        <h2>📝 Activité en Temps Réel</h2>
+        
+        <!-- Onglets des logs -->
+        <div class="log-tabs">
+            <button class="tab-btn active" onclick="switchLogTab('attendance')" data-tab="attendance">
+                👥 Présences
+            </button>
+            <button class="tab-btn" onclick="switchLogTab('attention')" data-tab="attention">
+                👁️ Attention
+            </button>
+            <button class="tab-btn" onclick="switchLogTab('emotions')" data-tab="emotions">
+                😊 Émotions
+            </button>
+            <button class="tab-btn" onclick="switchLogTab('access')" data-tab="access">
+                🚪 Accès
+            </button>
+        </div>
+        
+        <!-- Contrôles des logs -->
+        <div class="log-controls">
+            <button class="btn btn-sm" onclick="clearLogDisplay()">🗑️ Effacer</button>
+            <button class="btn btn-sm" onclick="pauseLogUpdates()" id="pauseLogsBtn">⏸️ Pause</button>
+            <button class="btn btn-sm" onclick="exportCurrentLogs()">📤 Exporter</button>
+            <div class="log-filter">
+                <input type="text" id="logFilter" placeholder="Filtrer les logs..." onkeyup="filterLogs()">
+            </div>
+        </div>
+        
+        <!-- Contenu des logs -->
+        <div class="log-content" id="logContent">
+            <div class="loading-indicator">Chargement des logs...</div>
+        </div>
+        
+        <!-- Pagination des logs -->
+        <div class="log-pagination" id="logPagination">
+            <button class="btn btn-sm" onclick="loadMoreLogs()">Charger plus</button>
+            <span class="log-count">Affichage de <span id="visibleLogs">0</span> sur <span id="totalLogs">0</span></span>
+        </div>
+    </div>
+</div>
+
+<!-- État du système -->
+<div class="system-status">
+    <div class="grid grid-3">
+        <!-- Statut des composants -->
+        <div class="card">
+            <h3>🔧 État des Composants</h3>
+            <div class="component-list" id="componentsList">
+                <div class="component-item">
+                    <span class="component-name">Caméra</span>
+                    <div class="status-indicator" id="camera-status-dash"></div>
+                    <span class="component-status" id="camera-status-text">Vérification...</span>
+                </div>
+                <div class="component-item">
+                    <span class="component-name">Reconnaissance</span>
+                    <div class="status-indicator" id="recognition-status-dash"></div>
+                    <span class="component-status" id="recognition-status-text">Vérification...</span>
+                </div>
+                <div class="component-item">
+                    <span class="component-name">Attention</span>
+                    <div class="status-indicator" id="attention-status-dash"></div>
+                    <span class="component-status" id="attention-status-text">Vérification...</span>
+                </div>
+                <div class="component-item">
+                    <span class="component-name">Émotions</span>
+                    <div class="status-indicator" id="emotion-status-dash"></div>
+                    <span class="component-status" id="emotion-status-text">Vérification...</span>
+                </div>
+                <div class="component-item">
+                    <span class="component-name">Porte</span>
+                    <div class="status-indicator" id="door-status-dash"></div>
+                    <span class="component-status" id="door-status-text">Vérification...</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Statistiques de performance -->
+        <div class="card">
+            <h3>⚡ Performance</h3>
+            <div class="performance-metrics" id="performanceMetrics">
+                <div class="perf-item">
+                    <span class="perf-label">FPS Caméra:</span>
+                    <span class="perf-value" id="cameraFPS">0</span>
+                </div>
+                <div class="perf-item">
+                    <span class="perf-label">Détections/min:</span>
+                    <span class="perf-value" id="detectionsPerMin">0</span>
+                </div>
+                <div class="perf-item">
+                    <span class="perf-label">CPU Usage:</span>
+                    <span class="perf-value" id="cpuUsage">0%</span>
+                </div>
+                <div class="perf-item">
+                    <span class="perf-label">Mémoire:</span>
+                    <span class="perf-value" id="memoryUsage">0 MB</span>
+                </div>
+                <div class="perf-item">
+                    <span class="perf-label">Erreurs/h:</span>
+                    <span class="perf-value" id="errorsPerHour">0</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Alertes et notifications -->
+        <div class="card">
+            <h3>🚨 Alertes Système</h3>
+            <div class="alerts-container" id="alertsContainer">
+                <div class="alert-item info">
+                    <div class="alert-icon">ℹ️</div>
+                    <div class="alert-message">Système initialisé</div>
+                    <div class="alert-time">Il y a 2 min</div>
+                </div>
+            </div>
+            <div class="alerts-controls">
+                <button class="btn btn-sm" onclick="clearAlerts()">🗑️ Effacer</button>
+                <button class="btn btn-sm" onclick="refreshAlerts()">🔄 Actualiser</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+<script>
+// Variables globales du dashboard
+let autoRefreshEnabled = true;
+let autoRefreshInterval = null;
+let currentLogTab = 'attendance';
+let logsPaused = false;
+let chartInstances = {};
+
+// Initialisation du dashboard
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('📊 Initialisation du dashboard');
+    
+    // Initialiser les composants
+    initializeDashboard();
+    
+    // Charger les données initiales
+    loadInitialData();
+    
+    // Démarrer l'auto-refresh
+    startAutoRefresh();
+    
+    // Initialiser les graphiques
+    initializeCharts();
+    
+    // Charger les logs par défaut
+    switchLogTab('attendance');
+});
+
+async function initializeDashboard() {
+    try {
+        // Vérifier la connexion au système
+        const systemStatus = await api.get('/api/system/status');
+        updateSystemComponents(systemStatus);
+        
+        // Charger les métriques initiales
+        await updateMetrics();
+        
+        notifications.success('Dashboard initialisé');
+    } catch (error) {
+        console.error('Erreur initialisation dashboard:', error);
+        notifications.error('Erreur d\'initialisation du dashboard');
+    }
+}
+
+function loadInitialData() {
+    // Charger toutes les données en parallèle
+    Promise.all([
+        updateMetrics(),
+        updateSystemStatus(),
+        updatePerformanceMetrics(),
+        loadSystemAlerts()
+    ]).then(() => {
+        console.log('✅ Données initiales chargées');
+    }).catch(error => {
+        console.error('Erreur chargement données:', error);
+    });
+}
+
+function startAutoRefresh() {
+    if (autoRefreshEnabled) {
+        autoRefreshInterval = setInterval(() => {
+            if (!logsPaused) {
+                refreshAllData();
+            }
+        }, 5000); // Actualisation toutes les 5 secondes
+    }
+}
+
+function stopAutoRefresh() {
+    if (autoRefreshInterval) {
+        clearInterval(autoRefreshInterval);
+        autoRefreshInterval = null;
+    }
+}
+
+function toggleAutoRefresh() {
+    autoRefreshEnabled = !autoRefreshEnabled;
+    const btn = event.target;
+    
+    if (autoRefreshEnabled) {
+        startAutoRefresh();
+        btn.textContent = '⏸️ Auto-refresh';
+        btn.className = 'btn btn-warning';
+        notifications.info('Auto-refresh activé');
+    } else {
+        stopAutoRefresh();
+        btn.textContent = '▶️ Auto-refresh';
+        btn.className = 'btn btn-success';
+        notifications.info('Auto-refresh désactivé');
+    }
+}
+
+async function refreshAllData() {
+    try {
+        // Afficher un indicateur de chargement
+        document.body.classList.add('loading');
+        
+        // Mettre à jour toutes les données
+        await Promise.all([
+            updateMetrics(),
+            updateSystemStatus(),
+            updatePerformanceMetrics(),
+            refreshCurrentLogs()
+        ]);
+        
+        // Mettre à jour les graphiques
+        updateCharts();
+        
+    } catch (error) {
+        console.error('Erreur refresh données:', error);
+        notifications.error('Erreur lors de l\'actualisation');
+    } finally {
+        document.body.classList.remove('loading');
+    }
+}
+
+// Les autres fonctions seront dans dashboard.js
+</script>
+{% endblock %}

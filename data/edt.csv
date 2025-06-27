@@ -1,0 +1,23 @@
+nom,date,heure_debut,heure_fin,cours,salle
+lysa,2025-06-05,18:30,20:00,Mathematiques,Salle 1
+anyes,2025-06-09,09:00,10:30,Physique,Salle 2
+zeineb,2025-06-09,10:15,11:45,Informatique,Labo 1
+khalil,2025-06-09,13:00,14:30,Chimie,Labo 2
+aurelien,2025-06-09,14:45,16:15,Biologie,Salle 2
+enzo,2025-06-09,16:30,18:00,Electronique,Salle Tech
+thomas,2025-06-10,08:00,09:30,Anglais,Salle 5
+lysa,2025-06-10,10:00,11:30,Histoire,Salle 4
+anyes,2025-06-10,13:30,15:00,Geographie,Salle 2
+zeineb,2025-06-10,15:15,16:45,Philosophie,Salle 1
+khalil,2025-06-11,09:45,11:15,Robotique,Labo 3
+aurelien,2025-06-11,11:30,13:00,Economie,Salle 3
+enzo,2025-06-11,14:00,15:30,Arts,Atelier A
+thomas,2025-06-11,16:00,17:30,Statistiques,Salle 2
+lysa,2025-06-12,08:15,09:45,Programmation,Labo Info
+anyes,2025-06-12,10:30,12:00,Reseaux,Labo Réseau
+zeineb,2025-06-12,13:15,14:45,Base de donnees,Salle 4
+khalil,2025-06-13,09:00,10:30,Securtie,Salle 2
+aurelien,2025-06-13,11:00,12:30,IA,Salle 1
+enzo,2025-06-13,14:00,15:30,Big Data,Labo Données
+lysa,2025-06-13,16:00,17:30,IA,Salle 5
+zeineb,2025-06-13,09:00,12:30,IA,Salle 5

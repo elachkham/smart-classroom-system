@@ -1,0 +1,4 @@
+timestamp,student_name,has_class,course,classroom
+2025-06-27T13:08:04.327319,khalil,True,DEBUG_Course,DEBUG_Room
+2025-06-27T13:13:24.952060,khalil,True,DEBUG_Course,DEBUG_Room
+2025-06-27T13:20:51.283766,khalil,True,DEBUG_Course,DEBUG_Room
