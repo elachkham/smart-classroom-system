@@ -25,8 +25,8 @@ class FaceCapture:
             print("Erreur : impossible d'ouvrir la webcam.")
             return False
 
-        print(f"🎯 Capture de {num_images} images pour {person_name}")
-        print("📸 Appuyez sur ESPACE pour capturer | Q pour quitter")
+        print(f" Capture de {num_images} images pour {person_name}")
+        print(" Appuyez sur ESPACE pour capturer | Q pour quitter")
 
         count = 0
         self.is_capturing = True
@@ -56,7 +56,7 @@ class FaceCapture:
 
                 if key == ord(' '):  # ESPACE
                     if len(faces) == 0:
-                        print("⚠️ Aucun visage détecté.")
+                        print(" Aucun visage détecté.")
                         continue
 
                     for (x, y, w, h) in faces:
@@ -64,7 +64,7 @@ class FaceCapture:
                         face_img = cv2.resize(face_img, (224, 224))  # Taille compatible DeepFace
                         img_path = person_path / f"{person_name}_{count + 1}.jpg"
                         cv2.imwrite(str(img_path), face_img)
-                        print(f"✅ Image sauvegardée : {img_path}")
+                        print(f" Image sauvegardée : {img_path}")
                         count += 1
                         
                         # Callback pour notifier l'interface web
@@ -78,11 +78,11 @@ class FaceCapture:
                         break  # Une seule capture par pression
 
                 elif key == ord('q') or key == 27:
-                    print("🛑 Capture interrompue.")
+                    print(" Capture interrompue.")
                     break
 
         except Exception as e:
-            print(f"❌ Erreur durant la capture: {e}")
+            print(f" Erreur durant la capture: {e}")
             return False
             
         finally:
@@ -90,7 +90,7 @@ class FaceCapture:
             cv2.destroyAllWindows()
             self.is_capturing = False
 
-        print("✅ Capture terminée.")
+        print(" Capture terminée.")
         return count >= num_images
     
     def stop_capture(self):
