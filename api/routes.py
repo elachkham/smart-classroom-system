@@ -11,17 +11,17 @@ from pathlib import Path
 from flask import send_from_directory
 from flask import Response
 
-# CORRECTION: Chemin absolu vers les templates
-BASE_DIR = Path(__file__).parent.parent  # Remonte de api/ vers smart_classroom/
+# CORRECTION: Chemin  vers les templates
+BASE_DIR = Path(__file__).parent.parent  
 TEMPLATE_DIR = BASE_DIR / "templates"
 STATIC_DIR = BASE_DIR / "static"
 
-# Debug - Vérification des chemins
+# Debug 
 print(f"🔍 BASE_DIR: {BASE_DIR}")
 print(f"🔍 TEMPLATE_DIR: {TEMPLATE_DIR}")
 print(f"🔍 Index exists: {(TEMPLATE_DIR / 'index.html').exists()}")
 
-# Créer Flask avec les bons chemins
+
 app = Flask(__name__, 
             template_folder=str(TEMPLATE_DIR),
             static_folder=str(STATIC_DIR))
@@ -29,7 +29,7 @@ app = Flask(__name__,
 app.config['SECRET_KEY'] = 'smart_classroom_secret_key'
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-# Instances globales - Seront initialisées par le système principal
+# Instances globales
 main_system = None
 logger = None
 camera_manager = None
@@ -48,9 +48,8 @@ capture_status = {
     'message': ''
 }
 
-# ================================
 # CLASSE DE CAPTURE WEB INTÉGRÉE
-# ================================
+
 
 class WebFaceCapture:
     """Capture de visages intégrée pour l'interface web"""
@@ -187,9 +186,9 @@ class WebFaceCapture:
         if self.callback:
             self.callback(status_update)
 
-# ================================
+
 # FONCTIONS UTILITAIRES
-# ================================
+
 
 def update_capture_status(status_update):
     """Callback pour mettre à jour le statut de capture"""
@@ -202,9 +201,9 @@ def update_capture_status(status_update):
     except Exception as e:
         print(f"Erreur WebSocket: {e}")
 
-# ================================
+
 # ROUTES PRINCIPALES
-# ================================
+
 
 @app.route('/')
 def index():
@@ -248,7 +247,7 @@ def dashboard_page():
         <a href="/">Retour à l'accueil</a>
         """
 
-# 4. AJOUTER CES ROUTES API SUPPLÉMENTAIRES
+
 
 @app.route('/api/dashboard/metrics', methods=['GET'])
 def get_dashboard_metrics():
@@ -288,7 +287,7 @@ def get_attention_chart_data():
     try:
         period = request.args.get('period', '6h')
         
-        # Simuler des données d'attention (remplacer par de vraies données)
+        # Simuler des données d'attention 
         import random
         from datetime import timedelta
         
@@ -418,7 +417,7 @@ def get_system_alerts():
             }
         ]
         
-        # Ajouter des alertes basées sur l'état du système
+   
         if not (camera_manager and camera_manager.is_active):
             alerts.append({
                 'id': 2,
@@ -447,7 +446,7 @@ def export_dashboard_data():
             'metrics': {}
         }
         
-        # Ajouter les données si disponibles
+
         if logger:
             export_data['recent_logs'] = {
                 'attendance': logger.get_recent_logs('attendance', 50),
@@ -456,7 +455,7 @@ def export_dashboard_data():
                 'access': logger.get_recent_logs('access', 50)
             }
         
-        # Ajouter le statut système
+ 
         if main_system:
             export_data['system_status'] = {
                 'camera_active': camera_manager.is_active if camera_manager else False,
@@ -470,7 +469,7 @@ def export_dashboard_data():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
 
-# 5. AJOUTER CETTE ROUTE POUR LES ASSETS STATIQUES (si nécessaire)
+
 
 @app.route('/assets/<path:filename>')
 def serve_assets(filename):
@@ -480,7 +479,7 @@ def serve_assets(filename):
     except Exception as e:
         return f"Asset non trouvé: {filename}", 404
 
-# 6. MODIFIER LA GESTION D'ERREURS (ajouter ces handlers)
+
 
 @app.errorhandler(FileNotFoundError)
 def handle_file_not_found(error):
@@ -531,9 +530,9 @@ def health_check():
         }
     })
 
-# ================================
+
 # ROUTES SYSTÈME
-# ================================
+
 
 @app.route('/api/system/status', methods=['GET'])
 def get_system_status():
@@ -551,9 +550,9 @@ def get_system_status():
     except Exception as e:
         return jsonify({'error': str(e)})
 
-# ================================
+
 # ROUTES CAMÉRA
-# ================================
+
 
 @app.route('/api/camera/status', methods=['GET'])
 def camera_status():
@@ -712,9 +711,9 @@ def get_error_frame():
             b'Content-Length: ' + str(len(frame_bytes)).encode() + b'\r\n'
             b'\r\n' + frame_bytes + b'\r\n')
 
-# ================================================================
+
 # ROUTE OPTIMISÉE POUR TESTER LA LATENCE
-# ================================================================
+
 
 @app.route('/api/camera/stream/fast')
 def video_stream_ultra_fast():
@@ -768,9 +767,9 @@ def camera_snapshot():
     except Exception as e:
         return jsonify({'success': False, 'message': f'Erreur: {str(e)}'})
 
-# ================================
+
 # ROUTES RECONNAISSANCE
-# ================================
+
 
 @app.route('/api/recognition/start', methods=['POST'])
 def start_face_recognition():
@@ -788,9 +787,9 @@ def stop_face_recognition():
     """Arrêter la reconnaissance faciale"""
     return jsonify({'success': True, 'message': 'Reconnaissance faciale désactivée'})
 
-# ================================
+
 # ROUTES ÉTUDIANTS
-# ================================
+
 
 @app.route('/api/students', methods=['GET'])
 def get_students():
@@ -843,9 +842,9 @@ def delete_student(student_name):
     except Exception as e:
         return jsonify({'success': False, 'message': f'Erreur: {str(e)}'})
 
-# ================================
+
 # ROUTES CAPTURE WEB
-# ================================
+
 
 @app.route('/api/students/capture/start', methods=['POST'])
 def start_web_capture():
@@ -956,9 +955,9 @@ def trigger_capture():
     except Exception as e:
         return jsonify({'success': False, 'message': f'Erreur: {str(e)}'})
 
-# ================================
+
 # ROUTES LOGS
-# ================================
+
 
 @app.route('/api/logs/<log_type>', methods=['GET'])
 def get_logs(log_type):
@@ -973,9 +972,9 @@ def get_logs(log_type):
     except Exception as e:
         return jsonify({'logs': [], 'count': 0, 'error': str(e)})
 
-# ================================
+
 # ROUTES PORTE
-# ================================
+
 
 @app.route('/api/door/open', methods=['POST'])
 def open_door():
@@ -1030,9 +1029,9 @@ def test_door():
             'door_opened': False,
             'door_connected': False
         })
-# ================================
+
 # ROUTES PARAMÈTRES
-# ================================
+
 
 @app.route('/api/settings', methods=['GET'])
 def get_settings():
@@ -1067,9 +1066,9 @@ def save_settings():
     except Exception as e:
         return jsonify({'success': False, 'message': f'Erreur: {str(e)}'})
 
-# ================================
+
 # WEBSOCKET EVENTS
-# ================================
+
 
 @socketio.on('connect')
 def handle_connect():
@@ -1097,18 +1096,17 @@ def handle_capture_status_request():
     """Demande du statut de capture"""
     emit('capture_status_update', capture_status)
 
-# ================================
+
 # ROUTES LÉGACY (COMPATIBILITÉ)
-# ================================
 
 @app.route('/api/students/capture', methods=['POST'])
 def legacy_capture_route():
     """Route de compatibilité - redirige vers la nouvelle capture web"""
     return start_web_capture()
 
-# ================================
+
 # GESTION D'ERREURS
-# ================================
+
 
 @app.errorhandler(404)
 def not_found(error):
@@ -1118,9 +1116,9 @@ def not_found(error):
 def internal_error(error):
     return jsonify({'error': 'Erreur interne du serveur'}), 500
 
-# ================================
+
 # POINT D'ENTRÉE (NE PAS UTILISER DIRECTEMENT)
-# ================================
+
 
 if __name__ == '__main__':
     print("⚠️ Ce fichier doit être importé par main.py, pas exécuté directement")
