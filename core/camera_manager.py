@@ -1,7 +1,4 @@
-# ================================================================
-# OPTIMISATIONS POUR RÉSOUDRE LA LATENCE CAMÉRA
-# Remplacez le contenu de camera_manager.py par cette version optimisée
-# ================================================================
+
 
 import cv2
 import threading
@@ -52,18 +49,18 @@ class OptimizedCameraManager:
             self.cap = cv2.VideoCapture(settings.CAMERA_INDEX, cv2.CAP_DSHOW)  # DirectShow sur Windows
             
             if not self.cap.isOpened():
-                print(f"❌ Impossible d'ouvrir la caméra à l'index {settings.CAMERA_INDEX}")
+                print(f" Impossible d'ouvrir la caméra à l'index {settings.CAMERA_INDEX}")
                 # Essayer d'autres indices
                 for i in range(1, 5):
-                    print(f"🔍 Test caméra index {i}...")
+                    print(f" Test caméra index {i}...")
                     self.cap = cv2.VideoCapture(i, cv2.CAP_DSHOW)
                     if self.cap.isOpened():
-                        print(f"✅ Caméra trouvée à l'index {i}")
+                        print(f" Caméra trouvée à l'index {i}")
                         settings.CAMERA_INDEX = i
                         break
                     self.cap.release()
                 else:
-                    print("❌ Aucune caméra trouvée")
+                    print(" Aucune caméra trouvée")
                     return False
             
             # OPTIMISATIONS CRITIQUES
@@ -86,7 +83,7 @@ class OptimizedCameraManager:
             # Tester la capture
             ret, test_frame = self.cap.read()
             if not ret:
-                print("❌ Impossible de capturer depuis la caméra")
+                print(" Impossible de capturer depuis la caméra")
                 self.cap.release()
                 return False
             
@@ -95,25 +92,25 @@ class OptimizedCameraManager:
             actual_height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
             actual_fps = self.cap.get(cv2.CAP_PROP_FPS)
             
-            print(f"✅ Caméra configurée: {actual_width}x{actual_height} @ {actual_fps}fps")
+            print(f" Caméra configurée: {actual_width}x{actual_height} @ {actual_fps}fps")
             
             # Démarrer le thread de capture optimisé
             self.is_active = True
             self.capture_thread = threading.Thread(target=self._optimized_capture_loop, daemon=True)
             self.capture_thread.start()
             
-            print("📹 Thread de capture optimisé démarré")
+            print(" Thread de capture optimisé démarré")
             return True
             
         except Exception as e:
-            print(f"❌ Erreur démarrage caméra: {e}")
+            print(f" Erreur démarrage caméra: {e}")
             if self.cap:
                 self.cap.release()
             return False
     
     def _optimized_capture_loop(self):
         """Boucle de capture ultra-optimisée"""
-        print("🔄 Démarrage de la boucle de capture optimisée")
+        print(" Démarrage de la boucle de capture optimisée")
         
         # Variables pour le contrôle du timing
         last_frame_time = time.time()
@@ -184,14 +181,14 @@ class OptimizedCameraManager:
                     last_frame_time = time.time()
                 
                 else:
-                    print("⚠️ Échec de capture, pause...")
+                    print("⚠ Échec de capture, pause...")
                     time.sleep(0.01)  # Pause courte
                     
             except Exception as e:
-                print(f"❌ Erreur dans la boucle de capture: {e}")
+                print(f" Erreur dans la boucle de capture: {e}")
                 time.sleep(0.01)
         
-        print("🔄 Boucle de capture optimisée terminée")
+        print(" Boucle de capture optimisée terminée")
     
     def get_frame(self):
         """Obtenir la frame la plus récente"""
@@ -227,7 +224,7 @@ class OptimizedCameraManager:
         if not self.is_active:
             return
         
-        print("🛑 Arrêt de la caméra optimisée...")
+        print(" Arrêt de la caméra optimisée...")
         self.is_active = False
         
         # Attendre que le thread se termine
@@ -251,19 +248,19 @@ class OptimizedCameraManager:
             self.frame = None
         
         self.frame_count = 0
-        print("✅ Caméra optimisée arrêtée")
+        print(" Caméra optimisée arrêtée")
     
     def add_callback(self, callback: Callable):
         """Ajouter un callback pour les nouvelles frames"""
         if callback not in self.callbacks:
             self.callbacks.append(callback)
-            print(f"📋 Callback ajouté ({len(self.callbacks)} total)")
+            print(f" Callback ajouté ({len(self.callbacks)} total)")
     
     def remove_callback(self, callback: Callable):
         """Supprimer un callback"""
         if callback in self.callbacks:
             self.callbacks.remove(callback)
-            print(f"📋 Callback supprimé ({len(self.callbacks)} restant)")
+            print(f" Callback supprimé ({len(self.callbacks)} restant)")
     
     def get_stats(self) -> dict:
         """Obtenir les statistiques de performance"""
