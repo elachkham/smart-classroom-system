@@ -46,9 +46,9 @@ settings = Settings()
 class OptimizedSettings:
     # Performance
     FAST_MODE = True
-    WEB_STREAM_FPS = 15      # FPS pour le web (au lieu de 30)
+    WEB_STREAM_FPS = 15      # FPS pour le web 
     PROCESSING_FPS = 2       # FPS pour analyses lourdes
-    DETECTION_INTERVAL = 150 # Frames entre détections (au lieu de 60)
+    DETECTION_INTERVAL = 150 # Frames entre détections 
     
     # Qualité vs Performance
     WEB_RESOLUTION = 480     # Largeur max pour web
