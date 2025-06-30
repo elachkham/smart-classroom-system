@@ -1,6 +1,4 @@
-# ================================================================
-# VERSION DEBUG CORRIGÉE - Sans erreur de classe
-# ================================================================
+
 
 import cv2
 import threading
@@ -59,7 +57,7 @@ class SmartClassroomSystemFixed:
         # Configuration
         settings.create_directories()
         
-        print("🎓 Smart Classroom System DEBUG initialisé")
+        print(" Smart Classroom System DEBUG initialisé")
     
     def setup_api_connection(self):
         """Connecter l'API au système principal"""
@@ -72,49 +70,49 @@ class SmartClassroomSystemFixed:
             routes.attention_tracker = self.attention_tracker
             routes.emotion_analyzer = self.emotion_analyzer
             routes.door_controller = self.door_controller
-            print("🔗 API connectée au système principal")
+            print(" API connectée au système principal")
         except Exception as e:
-            print(f"⚠️ Erreur connexion API: {e}")
+            print(f" Erreur connexion API: {e}")
     
     def start(self):
         """Démarrer le système"""
         print("🎓 Démarrage Smart Classroom System DEBUG...")
         
         if not self.camera_manager.start():
-            print("❌ Erreur: Impossible de démarrer la caméra")
+            print("Erreur: Impossible de démarrer la caméra")
             return False
         
-        # CORRECTION: Forcer le port COM7 pour votre Arduino
+        # Forcer le port COM7 pour Arduino
         try:
-            # Changer temporairement le port pour votre configuration
+            # Changer temporairement le port pour configuration
             original_port = settings.SERIAL_PORT
-            settings.SERIAL_PORT = "COM7"  # Votre port Arduino
+            settings.SERIAL_PORT = "COM7"  
             
             if self.door_controller.connect():
-                print(f"✅ Contrôleur de porte connecté sur {settings.SERIAL_PORT}")
+                print(f" Contrôleur de porte connecté sur {settings.SERIAL_PORT}")
                 
                 # TEST IMMÉDIAT de la porte
-                print("🚪 Test de la porte...")
+                print(" Test de la porte...")
                 if self.door_controller.open_door("TEST_USER", "system_startup"):
-                    print("✅ Test porte réussi - Servo et LED OK")
+                    print(" Test porte réussi - Servo et LED OK")
                 else:
-                    print("⚠️ Test porte échoué")
+                    print(" Test porte échoué")
             else:
-                print(f"⚠️ Contrôleur de porte non connecté sur {settings.SERIAL_PORT}")
+                print(f" Contrôleur de porte non connecté sur {settings.SERIAL_PORT}")
                 # Essayer d'autres ports
                 for port in ["COM3", "COM4", "COM5", "COM6", "COM8"]:
                     print(f"🔍 Essai port {port}...")
                     settings.SERIAL_PORT = port
                     if self.door_controller.connect():
-                        print(f"✅ Porte trouvée sur {port}")
+                        print(f" Porte trouvée sur {port}")
                         break
                 else:
-                    print("❌ Aucun port série trouvé pour la porte")
+                    print(" Aucun port série trouvé pour la porte")
                     
         except Exception as e:
-            print(f"⚠️ Erreur contrôleur de porte: {e}")
+            print(f" Erreur contrôleur de porte: {e}")
         
-        print("🔧 Calibration du système d'attention...")
+        print(" Calibration du système d'attention...")
         self._calibrate_attention_system()
         
         self.setup_api_connection()
@@ -122,7 +120,7 @@ class SmartClassroomSystemFixed:
         self.camera_manager.add_callback(self._process_frame_debug)
         
         self.is_running = True
-        print("✅ Système DEBUG démarré!")
+        print(" Système DEBUG démarré!")
         
         return True
     
@@ -169,12 +167,12 @@ class SmartClassroomSystemFixed:
                     
                     def recognition_task():
                         try:
-                            print("🐛 DEBUG: Appel face_recognizer.recognize_face...")
+                            print(" DEBUG: Appel face_recognizer.recognize_face...")
                             name, confidence = self.face_recognizer.recognize_face(face_img)
                             result_queue.put(('success', name, confidence))
-                            print(f"🐛 DEBUG: Reconnaissance terminée: {name} ({confidence})")
+                            print(f" DEBUG: Reconnaissance terminée: {name} ({confidence})")
                         except Exception as e:
-                            print(f"🐛 DEBUG: Erreur reconnaissance: {e}")
+                            print(f" DEBUG: Erreur reconnaissance: {e}")
                             result_queue.put(('error', str(e), 0))
                     
                     recognition_thread = threading.Thread(target=recognition_task)
@@ -185,22 +183,22 @@ class SmartClassroomSystemFixed:
                         result = result_queue.get(timeout=3.0)
                         status, name, confidence = result
                         
-                        print(f"🐛 DEBUG: Résultat reçu: {status}, {name}, {confidence}")
+                        print(f" DEBUG: Résultat reçu: {status}, {name}, {confidence}")
                         
                         if status == 'success' and name not in ["Inconnu", "Erreur", "Base_vide"]:
                             self.successful_recognitions += 1
-                            print(f"✅ DEBUG RECONNAISSANCE RÉUSSIE: {name} ({confidence:.1f}%)")
+                            print(f" DEBUG RECONNAISSANCE RÉUSSIE: {name} ({confidence:.1f}%)")
                             self._force_handle_result(name, confidence, face_img)
                         else:
                             self.failed_recognitions += 1
-                            print(f"❌ DEBUG reconnaissance échouée: {name}")
+                            print(f" DEBUG reconnaissance échouée: {name}")
                             
                     except queue.Empty:
-                        print("⏱️ DEBUG TIMEOUT reconnaissance - ABANDON FORCÉ")
+                        print(" DEBUG TIMEOUT reconnaissance - ABANDON FORCÉ")
                         self.failed_recognitions += 1
                     
                 except Exception as e:
-                    print(f"❌ DEBUG Erreur worker: {e}")
+                    print(f" DEBUG Erreur worker: {e}")
                     self.failed_recognitions += 1
                 
                 finally:
@@ -222,15 +220,15 @@ class SmartClassroomSystemFixed:
                 time.sleep(0.05)
                 continue
             except Exception as e:
-                print(f"❌ DEBUG Erreur worker: {e}")
+                print(f" DEBUG Erreur worker: {e}")
                 self.recognition_in_progress = False
                 time.sleep(0.1)
         
-        print("🛑 Worker reconnaissance DEBUG arrêté")
+        print(" Worker reconnaissance DEBUG arrêté")
     
     def _debug_emotion_worker(self):
         """Worker émotion DEBUG"""
-        print("😊 Worker émotion DEBUG démarré")
+        print(" Worker émotion DEBUG démarré")
         
         while self.processing_active:
             try:
@@ -241,37 +239,37 @@ class SmartClassroomSystemFixed:
                 
                 face_img, student_name, frame_id = emotion_data
                 
-                print(f"😊 DEBUG: Analyse émotion pour {student_name}")
+                print(f" DEBUG: Analyse émotion pour {student_name}")
                 
                 try:
                     emotion_record = self.emotion_analyzer.analyze_emotion(face_img, student_name)
                     if emotion_record:
                         self.logger.log_emotion(emotion_record)
-                        print(f"😊 DEBUG ÉMOTION: {student_name} - {emotion_record.emotion.value} ({emotion_record.confidence:.1f}%)")
-                        print(f"📝 DEBUG: Log émotion écrit pour {student_name}")
+                        print(f" DEBUG ÉMOTION: {student_name} - {emotion_record.emotion.value} ({emotion_record.confidence:.1f}%)")
+                        print(f" DEBUG: Log émotion écrit pour {student_name}")
                     else:
-                        print(f"⚠️ DEBUG: Aucune émotion retournée pour {student_name}")
+                        print(f" DEBUG: Aucune émotion retournée pour {student_name}")
                         
                 except Exception as e:
-                    print(f"❌ DEBUG Erreur émotion: {e}")
+                    print(f" DEBUG Erreur émotion: {e}")
                 
                 self.emotion_analysis_queue.task_done()
                 
             except queue.Empty:
                 continue
             except Exception as e:
-                print(f"❌ DEBUG Erreur worker émotion: {e}")
+                print(f" DEBUG Erreur worker émotion: {e}")
                 time.sleep(0.1)
         
-        print("🛑 Worker émotion DEBUG arrêté")
+        print(" Worker émotion DEBUG arrêté")
     
     def _force_handle_result(self, name, confidence, face_img):
         """FORCER le traitement du résultat"""
         try:
-            print(f"🐛 DEBUG: Traitement forcé pour {name}")
+            print(f" DEBUG: Traitement forcé pour {name}")
             
             if name not in self.recognized_students:
-                print(f"🎯 DEBUG: Ajout {name} à recognized_students")
+                print(f" DEBUG: Ajout {name} à recognized_students")
                 self.recognized_students.add(name)
                 
                 attendance_record = AttendanceRecord(
@@ -284,10 +282,10 @@ class SmartClassroomSystemFixed:
                 self.logger.log_attendance(attendance_record)
                 print(f"📝 DEBUG: NOUVELLE présence enregistrée pour {name}")
                 
-                # ENLEVER L'OUVERTURE AUTOMATIQUE
-                print(f"✅ DEBUG: {name} ajouté avec succès (pas d'ouverture automatique)")
+                
+                print(f" DEBUG: {name} ajouté avec succès (pas d'ouverture automatique)")
             else:
-                print(f"🔄 DEBUG: {name} déjà reconnu, pas de nouvelle présence enregistrée")
+                print(f" DEBUG: {name} déjà reconnu, pas de nouvelle présence enregistrée")
             
             # Toujours ajouter l'émotion
             try:
@@ -299,17 +297,17 @@ class SmartClassroomSystemFixed:
                         break
                 
                 self.emotion_analysis_queue.put_nowait((face_img.copy(), name, time.time()))
-                print(f"😊 DEBUG: Émotion forcée pour {name}")
+                print(f" DEBUG: Émotion forcée pour {name}")
                 
             except Exception as e:
-                print(f"⚠️ DEBUG Erreur ajout émotion: {e}")
+                print(f" DEBUG Erreur ajout émotion: {e}")
                 
         except Exception as e:
-            print(f"❌ DEBUG Erreur traitement forcé: {e}")
+            print(f" DEBUG Erreur traitement forcé: {e}")
     
     def _calibrate_attention_system(self):
         """Calibrer le système de suivi d'attention"""
-        print("🔧 DEBUG: Calibration attention...")
+        print(" DEBUG: Calibration attention...")
         
         frame = self.camera_manager.get_frame()
         if frame is not None:
@@ -319,7 +317,7 @@ class SmartClassroomSystemFixed:
             else:
                 self.attention_tracker.is_calibrated = True
         
-        print("✅ DEBUG: Attention calibrée")
+        print(" DEBUG: Attention calibrée")
     
     def _process_frame_debug(self, frame):
         """Traiter chaque frame - VERSION DEBUG"""
@@ -338,21 +336,21 @@ class SmartClassroomSystemFixed:
                 faces = self.face_detector.detect_faces_optimized(frame)
                 
                 if faces:
-                    print(f"🐛 DEBUG: {len(faces)} visage(s) détecté(s)")
+                    print(f" DEBUG: {len(faces)} visage(s) détecté(s)")
                     self._force_attention_processing(frame, faces)
                     
                     if not self.recognition_in_progress and self.face_recognition_queue.empty():
                         self._try_recognition(frame, faces)
                     else:
-                        print(f"🐛 DEBUG: Skip reconnaissance (en_cours: {self.recognition_in_progress}, queue: {self.face_recognition_queue.qsize()})")
+                        print(f" DEBUG: Skip reconnaissance (en_cours: {self.recognition_in_progress}, queue: {self.face_recognition_queue.qsize()})")
                         
         except Exception as e:
-            print(f"⚠️ DEBUG Erreur frame: {e}")
+            print(f" DEBUG Erreur frame: {e}")
     
     def _force_attention_processing(self, frame, faces):
         """FORCER le traitement de l'attention"""
         try:
-            print("🐛 DEBUG: Traitement attention forcé")
+            print(" DEBUG: Traitement attention forcé")
             
             face_names = []
             for i, face in enumerate(faces):
@@ -361,23 +359,23 @@ class SmartClassroomSystemFixed:
                 else:
                     face_names.append(f"Face_{i}")
             
-            print(f"🐛 DEBUG: Appel attention_tracker.update_tracking avec {len(faces)} visages et noms: {face_names}")
+            print(f" DEBUG: Appel attention_tracker.update_tracking avec {len(faces)} visages et noms: {face_names}")
             
             try:
                 attention_records = self.attention_tracker.update_tracking(frame, faces, face_names)
-                print(f"🐛 DEBUG: attention_tracker retourné {len(attention_records)} records")
+                print(f" DEBUG: attention_tracker retourné {len(attention_records)} records")
                 
                 for record in attention_records:
-                    print(f"🐛 DEBUG: Traitement record attention pour {record.student_name}")
+                    print(f" DEBUG: Traitement record attention pour {record.student_name}")
                     self.logger.log_attention(record)
-                    print(f"📊 DEBUG ATTENTION: {record.student_name} - {record.status.value}")
-                    print(f"📝 DEBUG: Log attention écrit pour {record.student_name}")
+                    print(f" DEBUG ATTENTION: {record.student_name} - {record.status.value}")
+                    print(f" DEBUG: Log attention écrit pour {record.student_name}")
                     
                 if len(attention_records) == 0:
-                    print("⚠️ DEBUG: Aucun record d'attention retourné par le tracker")
+                    print(" DEBUG: Aucun record d'attention retourné par le tracker")
                     
                     if len(face_names) > 0 and len(faces) > 0:
-                        print("🚨 DEBUG: CRÉATION FORCÉE d'un record d'attention")
+                        print(" DEBUG: CRÉATION FORCÉE d'un record d'attention")
                         from data.models import AttentionRecord, AttentionStatus
                         from datetime import datetime
                         import random
@@ -395,12 +393,12 @@ class SmartClassroomSystemFixed:
                         print(f"📝 DEBUG: Log attention forcé écrit pour {forced_record.student_name}")
                     
             except Exception as attention_error:
-                print(f"❌ DEBUG Erreur dans attention_tracker.update_tracking: {attention_error}")
+                print(f" DEBUG Erreur dans attention_tracker.update_tracking: {attention_error}")
                 import traceback
                 traceback.print_exc()
                 
         except Exception as e:
-            print(f"❌ DEBUG Erreur attention forcée: {e}")
+            print(f" DEBUG Erreur attention forcée: {e}")
             import traceback
             traceback.print_exc()
     
@@ -417,18 +415,18 @@ class SmartClassroomSystemFixed:
             print(f"🐛 DEBUG: Visage ajouté pour reconnaissance")
             
         except queue.Full:
-            print("⚠️ DEBUG: File reconnaissance pleine")
+            print(" DEBUG: File reconnaissance pleine")
         except Exception as e:
-            print(f"❌ DEBUG Erreur ajout reconnaissance: {e}")
+            print(f" DEBUG Erreur ajout reconnaissance: {e}")
     
     def manual_recognition_and_door_test(self):
         """Fonction appelée par le bouton Test de l'interface web"""
         try:
-            print("🚪 DEBUG: Test manuel déclenché depuis l'interface web")
+            print(" DEBUG: Test manuel déclenché depuis l'interface web")
             
             # Vérifier que la caméra est active
             if not self.camera_manager.is_active:
-                print("❌ DEBUG: Caméra non active pour le test")
+                print(" DEBUG: Caméra non active pour le test")
                 return {
                     'success': False, 
                     'message': 'Caméra non active',
@@ -461,16 +459,16 @@ class SmartClassroomSystemFixed:
             face_img = frame[y:y+h, x:x+w]
             face_img = ImageProcessor.resize_face(face_img)
             
-            print("🔍 DEBUG: Reconnaissance manuelle en cours...")
+            print(" DEBUG: Reconnaissance manuelle en cours...")
             
             # Reconnaissance IMMÉDIATE
             try:
                 name, confidence = self.face_recognizer.recognize_face(face_img)
-                print(f"🔍 DEBUG: Résultat reconnaissance manuelle: {name} ({confidence:.1f}%)")
+                print(f" DEBUG: Résultat reconnaissance manuelle: {name} ({confidence:.1f}%)")
                 
                 if name not in ["Inconnu", "Erreur", "Base_vide"]:
                     # PERSONNE RECONNUE
-                    print(f"✅ DEBUG: {name} reconnu, ouverture de la porte")
+                    print(f" DEBUG: {name} reconnu, ouverture de la porte")
                     
                     # Ouvrir la porte
                     door_success = False
@@ -478,13 +476,13 @@ class SmartClassroomSystemFixed:
                         try:
                             door_success = self.door_controller.open_door(name, "manual_test")
                             if door_success:
-                                print(f"🚪 DEBUG: Porte ouverte avec succès pour {name}")
+                                print(f" DEBUG: Porte ouverte avec succès pour {name}")
                             else:
-                                print(f"❌ DEBUG: Échec ouverture porte pour {name}")
+                                print(f" DEBUG: Échec ouverture porte pour {name}")
                         except Exception as door_error:
-                            print(f"❌ DEBUG: Erreur ouverture porte: {door_error}")
+                            print(f" DEBUG: Erreur ouverture porte: {door_error}")
                     else:
-                        print("⚠️ DEBUG: Contrôleur de porte non connecté")
+                        print("⚠ DEBUG: Contrôleur de porte non connecté")
                     
                     return {
                         'success': True,
@@ -497,15 +495,15 @@ class SmartClassroomSystemFixed:
                 
                 else:
                     # PERSONNE NON RECONNUE
-                    print(f"❌ DEBUG: Personne non reconnue: {name}")
+                    print(f" DEBUG: Personne non reconnue: {name}")
                     
                     # Envoyer une alerte à l'Arduino (LED rouge)
                     if self.door_controller.is_connected:
                         try:
                             self.door_controller.send_alert("unknown")
-                            print("🚨 DEBUG: Alerte envoyée à l'Arduino (LED rouge)")
+                            print(" DEBUG: Alerte envoyée à l'Arduino (LED rouge)")
                         except Exception as alert_error:
-                            print(f"❌ DEBUG: Erreur envoi alerte: {alert_error}")
+                            print(f" DEBUG: Erreur envoi alerte: {alert_error}")
                     
                     return {
                         'success': True,
@@ -517,7 +515,7 @@ class SmartClassroomSystemFixed:
                     }
                     
             except Exception as recognition_error:
-                print(f"❌ DEBUG: Erreur reconnaissance manuelle: {recognition_error}")
+                print(f" DEBUG: Erreur reconnaissance manuelle: {recognition_error}")
                 return {
                     'success': False,
                     'message': f'Erreur lors de la reconnaissance: {str(recognition_error)}',
@@ -525,7 +523,7 @@ class SmartClassroomSystemFixed:
                 }
                 
         except Exception as e:
-            print(f"❌ DEBUG: Erreur test manuel: {e}")
+            print(f" DEBUG: Erreur test manuel: {e}")
             return {
                 'success': False,
                 'message': f'Erreur système: {str(e)}',
@@ -547,11 +545,11 @@ class SmartClassroomSystemFixed:
                     if student_name:
                         unique_students_today.add(student_name)
             
-            print(f"📊 DEBUG: Étudiants UNIQUES présents aujourd'hui: {len(unique_students_today)} - {list(unique_students_today)}")
+            print(f" DEBUG: Étudiants UNIQUES présents aujourd'hui: {len(unique_students_today)} - {list(unique_students_today)}")
             return len(unique_students_today)
             
         except Exception as e:
-            print(f"❌ DEBUG Erreur calcul présence unique: {e}")
+            print(f" DEBUG Erreur calcul présence unique: {e}")
             return len(self.recognized_students)
     
     def print_diagnostic(self):
@@ -562,24 +560,24 @@ class SmartClassroomSystemFixed:
         print("\n" + "="*60)
         print("🐛 DIAGNOSTIC DEBUG")
         print("="*60)
-        print(f"📊 File reconnaissance: {status['recognition_queue_size']}/1")
-        print(f"😊 File émotions: {status['emotion_queue_size']}/1")
-        print(f"✅ Reconnaissances réussies: {status['successful_recognitions']}")
-        print(f"❌ Reconnaissances échouées: {status['failed_recognitions']}")
-        print(f"🎯 Étudiants reconnus: {list(self.recognized_students)}")
-        print(f"👥 Étudiants UNIQUES aujourd'hui: {unique_today}")
-        print(f"🔄 Reconnaissance en cours: {'🟢 Oui' if status['recognition_in_progress'] else '🔴 Non'}")
-        print(f"🚪 Porte connectée: {'🟢 Oui' if self.door_controller.is_connected else '🔴 Non'}")
+        print(f" File reconnaissance: {status['recognition_queue_size']}/1")
+        print(f" File émotions: {status['emotion_queue_size']}/1")
+        print(f" Reconnaissances réussies: {status['successful_recognitions']}")
+        print(f" Reconnaissances échouées: {status['failed_recognitions']}")
+        print(f" Étudiants reconnus: {list(self.recognized_students)}")
+        print(f" Étudiants UNIQUES aujourd'hui: {unique_today}")
+        print(f" Reconnaissance en cours: {'🟢 Oui' if status['recognition_in_progress'] else '🔴 Non'}")
+        print(f" Porte connectée: {'🟢 Oui' if self.door_controller.is_connected else '🔴 Non'}")
         
         if status['recognition_in_progress']:
             elapsed = time.time() - self.recognition_start_time if self.recognition_start_time > 0 else 0
-            print(f"⏱️ Temps reconnaissance: {elapsed:.1f}s")
+            print(f"⏱ Temps reconnaissance: {elapsed:.1f}s")
         
         print("="*60 + "\n")
     
     def stop(self):
         """Arrêter le système"""
-        print("🛑 DEBUG: Arrêt du système...")
+        print(" DEBUG: Arrêt du système...")
         self.is_running = False
         self.processing_active = False
         
@@ -618,11 +616,11 @@ class SmartClassroomSystemFixed:
         except:
             pass
         
-        print("✅ DEBUG: Système arrêté")
+        print(" DEBUG: Système arrêté")
     
     def run_web_interface(self):
         """Lancer l'interface web"""
-        print("🌐 DEBUG: Interface web...")
+        print(" DEBUG: Interface web...")
         from api.routes import app, socketio
         
         socketio.run(
@@ -659,9 +657,9 @@ def main():
             web_thread.daemon = True
             web_thread.start()
             
-            print("🐛 Smart Classroom System DEBUG actif!")
-            print("📱 Interface web: http://localhost:8000")
-            print("👀 Appuyez sur 'q' pour quitter")
+            print(" Smart Classroom System DEBUG actif!")
+            print(" Interface web: http://localhost:8000")
+            print(" Appuyez sur 'q' pour quitter")
             
             while True:
                 frame = system.camera_manager.get_frame()
@@ -688,9 +686,9 @@ def main():
                 time.sleep(0.03)
     
     except KeyboardInterrupt:
-        print("\n🛑 Interruption utilisateur")
+        print("\n Interruption utilisateur")
     except Exception as e:
-        print(f"❌ Erreur système DEBUG: {e}")
+        print(f" Erreur système DEBUG: {e}")
         import traceback
         traceback.print_exc()
     finally:
